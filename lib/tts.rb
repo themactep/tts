@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require 'open-uri'
 require 'uri'
 require 'tempfile'
@@ -59,7 +60,7 @@ module Tts
 
   def to_url lang
     langs = ['af', 'ar', 'az', 'be', 'bg', 'bn', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'en_us', 'en_gb', 'en_au', 'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'ga', 'gl', 'gu', 'hi', 'hr', 'ht', 'hu', 'id', 'is', 'it', 'iw', 'ja', 'ka', 'kn', 'ko', 'la', 'lt', 'lv', 'mk', 'ms', 'mt', 'nl', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sq', 'sr', 'sv', 'sw', 'ta', 'te', 'th', 'tl', 'tr', 'uk', 'ur', 'vi', 'yi', 'zh', 'zh-CN', 'zh-TW']
-    raise "Not accepted language, accpeted are #{langs * ","}" unless langs.include? lang
+    raise "Unsupported language! Supported languages: #{langs * ","}." unless langs.include? lang
     base = "#{Tts.server_url}?tl=#{lang}&ie=UTF-8&client=tw-ob&q=#{CGI.escape(self)}"
   end
 
@@ -72,7 +73,7 @@ module Tts
       end
       merge_mp3_file(file_name)
     rescue => e
-      $stderr.puts("Internet error! #{e.message}")
+      $stderr.puts("Connection error! #{e.message}")
       exit(1)
     end
   end
@@ -90,10 +91,10 @@ module Tts
   end
 
   def play lang="en", times=1, pause_gap = 1
-    #test if mpg123 exists?
+    # check if mpg123 exists
     `which mpg123`
-    if $?.to_i != 0
-      puts "mpg123 executable NOT found. This function only work with POSIX systems.\n Install mpg123 with `brew install mpg123` or `apt-get install mpg123`"
+    unless $?.success?
+      puts "mpg123 not found. Please install binary mpg123 for your distro, or compile it from source (https://www.mpg123.de/)"
       exit 1
     end
     self.to_file(lang, play_file_name)
